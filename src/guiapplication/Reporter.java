@@ -6,6 +6,8 @@
 package guiapplication;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -16,6 +18,7 @@ public class Reporter implements Serializable, IObject{
     private String name;
     private Address address;
     private String jobs;
+    private Date dateJoin;
     private static int currentId = 10000;
 
     public Reporter() {
@@ -35,7 +38,15 @@ public class Reporter implements Serializable, IObject{
         this.address = address;
         this.jobs = jobs;
     }
-    
+
+    public Reporter(String name, Address address, String jobs, Date dateJoin) {
+        this();             
+        this.name = name;
+        this.address = address;
+        this.jobs = jobs;
+        this.dateJoin = dateJoin;
+    }
+     
     public static void setCurrentId(int currentId){
         Reporter.currentId = currentId;
     }
@@ -64,8 +75,14 @@ public class Reporter implements Serializable, IObject{
         this.address = address;
     }
 
-  
+    public Date getDateJoin() {
+        return dateJoin;
+    }
 
+    public void setDateJoin(Date dateJoin) {
+        this.dateJoin = dateJoin;
+    }
+    
     public String getJobs() {
         return jobs;
     }
@@ -79,7 +96,8 @@ public class Reporter implements Serializable, IObject{
     }
     @Override
     public Object[] toObject(){
-        return new Object[]{String.valueOf(id), name, address.toString(), jobs};
+        return new Object[]{String.valueOf(id), name, address.toString(), jobs, 
+        (new SimpleDateFormat("dd/MM/yyyy")).format(dateJoin)};
     }
     
     @Override

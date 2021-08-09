@@ -10,8 +10,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,17 +32,27 @@ public class Application extends javax.swing.JFrame {
     /**
      * Creates new form Application
      */
+    private final int dayStartIndex = 1, dayEndIndex = 31;
+    private final int monthStartIndex = 1, monthEndIndex = 12;
+    private final int yearStartIndex = 1990, yearEndIndex = 2021;
     private final String regexInformationSplit = "-";
     private final String reporterFileName = "PV.txt";
     private final String postFileName = "KB.txt";
     private final String tablePriceFileName = "TINHCONG.txt";
+    
     private List<Reporter> listReporter;
     private List<Post> listPost;
     private List<TablePrice> listTablePrice;
+    private List<Integer> listDays = new ArrayList<>();
+    private List<Integer> listMonths = new ArrayList<>();
+    private List<Integer> listYears = new ArrayList<>();
        
     public Application() {
         initComponents();
         
+        listDays = loadDayMonthYearForList(dayStartIndex, dayEndIndex);
+        listMonths = loadDayMonthYearForList(monthStartIndex, monthEndIndex);
+        listYears = loadDayMonthYearForList(yearStartIndex, yearEndIndex);
         listReporter = (List<Reporter>) loadDataToList(reporterFileName);
         Reporter.setCurrentId(listReporter.size() + Reporter.getCurrentId());
         loadItemsForComboBox(listReporter, tablePriceReporterItem);
@@ -52,6 +64,9 @@ public class Application extends javax.swing.JFrame {
         loadDataToTabel(listPost, postTable);
         loadDataToTabel(listTablePrice, tablePriceTable);
         loadItemsForComboBox(listReporter, salaryReporterItem);
+        loadItemsForComboBox(listDays, reporterDayCb);
+        loadItemsForComboBox(listMonths, reporterMonthCb);
+        loadItemsForComboBox(listYears, reporterYearCb);
         
         reporterAddBtn.addActionListener(new ActionListener(){
             @Override
@@ -60,12 +75,18 @@ public class Application extends javax.swing.JFrame {
                 String addressString = reporterAdressTF.getText();
                 Address address = new Address(addressString);
                 String reporterClass = reporterClassItem.getItemAt(reporterClassItem.getSelectedIndex());
+                int day = Integer.parseInt(reporterDayCb.getItemAt(reporterDayCb.getSelectedIndex()));
+                int month = Integer.parseInt(reporterMonthCb.getItemAt(reporterMonthCb.getSelectedIndex()));
+                int year = Integer.parseInt(reporterYearCb.getItemAt(reporterYearCb.getSelectedIndex()));
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month - 1, day);
+                Date date = calendar.getTime();
                 
                 if(reporterName.equals("") || addressString.equals("")){
                     (new JOptionPane()).showMessageDialog(rootPane, "ko duoc de trong");
                     return;
                 }
-                Reporter reporter = new Reporter(reporterName, address, reporterClass);
+                Reporter reporter = new Reporter(reporterName, address, reporterClass, date);
                 listReporter.add(reporter);
                 addRowToTable(reporter, reporterTable);
             }
@@ -220,6 +241,12 @@ public class Application extends javax.swing.JFrame {
         reporterSaveBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         reporterTable = new javax.swing.JTable();
+        reporterDayCb = new javax.swing.JComboBox<>();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        reporterMonthCb = new javax.swing.JComboBox<>();
+        reporterYearCb = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
@@ -267,10 +294,22 @@ public class Application extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Ma nhan vien", "Ho va Ten", "Dia Chi", "Loai Nhan Vien"
+                "Ma nhan vien", "Ho va Ten", "Dia Chi", "Loai Nhan Vien", "Ngay Tham Gia"
             }
         ));
         jScrollPane1.setViewportView(reporterTable);
+
+        jLabel11.setText("Ngay");
+
+        jLabel12.setText("Thang");
+
+        jLabel13.setText("Nam");
+
+        reporterYearCb.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reporterYearCbActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -279,6 +318,29 @@ public class Application extends javax.swing.JFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(reporterDayCb, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(reporterMonthCb, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addGap(9, 9, 9)
+                                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(reporterYearCb, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel5Layout.createSequentialGroup()
+                                .addGap(24, 24, 24)
+                                .addComponent(jLabel13))))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(87, 87, 87)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(reporterSaveBtn)
+                            .addComponent(reporterAddBtn)))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel4)
@@ -286,34 +348,39 @@ public class Application extends javax.swing.JFrame {
                             .addComponent(reporterAdressTF)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(reporterClassItem, 0, 194, Short.MAX_VALUE)))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(87, 87, 87)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(reporterSaveBtn)
-                            .addComponent(reporterAddBtn))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 150, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(84, 84, 84))
+                            .addComponent(reporterClassItem, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 87, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 582, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(117, 117, 117)
+                        .addGap(46, 46, 46)
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
                         .addComponent(reporterNameTF, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel2)
-                        .addGap(11, 11, 11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(reporterAdressTF, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(25, 25, 25)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(reporterClassItem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26)
+                        .addGap(27, 27, 27)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel12)
+                            .addComponent(jLabel13))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(reporterDayCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(reporterMonthCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(reporterYearCb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(30, 30, 30)
                         .addComponent(reporterAddBtn)
                         .addGap(18, 18, 18)
                         .addComponent(reporterSaveBtn))
@@ -363,7 +430,7 @@ public class Application extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Ma Kieu Bai", "Ten Kieu Bai", "Don Gia"
+                "Ma Kieu Bai", "Ten Kieu Bai", "Don Gia", "Ngay Viet"
             }
         ));
         jScrollPane2.setViewportView(postTable);
@@ -568,6 +635,10 @@ public class Application extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tablePriceReporterItemActionPerformed
 
+    private void reporterYearCbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reporterYearCbActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_reporterYearCbActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -601,6 +672,14 @@ public class Application extends javax.swing.JFrame {
                 new Application().setVisible(true);
             }
         });
+    }
+    
+    private List<Integer> loadDayMonthYearForList(int valueStart, int valueEnd){
+        List<Integer> list = new ArrayList<>();
+        for(int value = valueStart; value <= valueEnd; value++){
+            list.add(value);
+        }
+        return list;
     }
     
     private int calculateSalary(Reporter reporter){
@@ -650,9 +729,9 @@ public class Application extends javax.swing.JFrame {
         return null;
     }
     
-    private void loadItemsForComboBox(List<? extends IObject> list, JComboBox box){
+    private void loadItemsForComboBox(List<? extends Object> list, JComboBox box){
         box.removeAllItems();
-        for(IObject object: list){
+        for(Object object: list){
             box.addItem(object.toString());
         }
     }
@@ -671,7 +750,7 @@ public class Application extends javax.swing.JFrame {
     }
     
     private void addRowToTable(IObject object, JTable table){
-        DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();
+        DefaultTableModel defaultTableModel = (DefaultTableModel) table.getModel();       
         defaultTableModel.addRow(object.toObject());
     }
     
@@ -684,6 +763,9 @@ public class Application extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -709,9 +791,12 @@ public class Application extends javax.swing.JFrame {
     private javax.swing.JButton reporterAddBtn;
     private javax.swing.JTextField reporterAdressTF;
     private javax.swing.JComboBox<String> reporterClassItem;
+    private javax.swing.JComboBox<String> reporterDayCb;
+    private javax.swing.JComboBox<String> reporterMonthCb;
     private javax.swing.JTextField reporterNameTF;
     private javax.swing.JButton reporterSaveBtn;
     private javax.swing.JTable reporterTable;
+    private javax.swing.JComboBox<String> reporterYearCb;
     private javax.swing.JButton salaryBtn;
     private javax.swing.JComboBox<String> salaryReporterItem;
     private javax.swing.JTextField tabelPriceAmountTF;

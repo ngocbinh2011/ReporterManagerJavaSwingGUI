@@ -6,6 +6,7 @@
 package guiapplication;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Post implements  Serializable, IObject{
     private String nameClass;
     private int price;
     private static int currentId = 100;
+    private Date dateWrite;
 
     public Post() {
         this.id = currentId++;
@@ -26,7 +28,12 @@ public class Post implements  Serializable, IObject{
         this.nameClass = nameClass;
         this.price = price;
     }
-    
+
+    public Post(String nameClass, int price, Date dateWrite) {
+        this.nameClass = nameClass;
+        this.price = price;
+        this.dateWrite = dateWrite;
+    }
 
     public int getId() {
         return id;
@@ -58,6 +65,14 @@ public class Post implements  Serializable, IObject{
 
     public static void setCurrentId(int currentId) {
         Post.currentId = currentId;
+    }
+
+    public Date getDateWrite() {
+        return dateWrite;
+    }
+
+    public void setDateWrite(Date dateWrite) {
+        this.dateWrite = dateWrite;
     }
     
     @Override
